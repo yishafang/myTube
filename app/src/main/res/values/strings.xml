@@ -43,4 +43,8 @@
 
     <!-- Rationale for asking for Contacts -->
     <string name="contacts_permission_rationale">Contacts access is needed in order to retrieve your email address.</string>
+
+    <!-- Youtube client-->
+    <string name="search">Search</string>
+    <string name="failed">Failed to initialize Youtube Player</string>
 </resources>

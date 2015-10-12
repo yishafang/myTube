@@ -31,4 +31,6 @@ dependencies {
     compile 'com.google.android.gms:play-services-identity:8.1.0'
     compile 'com.google.android.gms:play-services-plus:8.1.0'
     compile 'com.android.support:multidex:1.0.1'
+    compile files('libs/YouTubeAndroidPlayerApi.jar')
+    compile 'com.squareup.picasso:picasso:2.4.0'
 }
