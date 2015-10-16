@@ -25,10 +25,11 @@ public class SampleFragmentPagerAdapter extends FragmentPagerAdapter{
 
     @Override
     public Fragment getItem(int position) {
-//        if (position == 1) {
-//            return FavoriteListFragment.newInstance(position + 1);
-//        }
-        return PageFragment.newInstance(position + 1);
+        if (position == 1) {
+            return FavoriteListFragment.newInstance(position);
+        } else {
+            return SearchFragment.newInstance(position);
+        }
     }
 
     @Override
