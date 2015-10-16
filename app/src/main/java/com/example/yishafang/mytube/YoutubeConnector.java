@@ -29,7 +29,7 @@ public class YoutubeConnector {
     private YouTube.Search.List query;
 
     // Developer Key
-    public static final String KEY = "AIzaSyCc1dhq2FG1lWsCI6GDhmtlVL5eywd4uMc";
+    public static final String KEY = "AIzaSyCglFHAsH2HLqkBIMMWBWlZ8iRCp3Za07o";
 
     public YoutubeConnector(Context context) {
         youtube = new YouTube.Builder(new NetHttpTransport(), new JacksonFactory(), new HttpRequestInitializer() {

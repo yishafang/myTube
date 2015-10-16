@@ -239,6 +239,9 @@ public class MainActivity extends AppCompatActivity implements
                     String currentAccount = Plus.AccountApi.getAccountName(mGoogleApiClient);
                     ((TextView) findViewById(R.id.email)).setText(currentAccount);
                 }
+
+                Intent intent = new Intent(this, SearchActivity.class);
+                startActivity(intent);
             } else {
                 // If getCurrentPerson returns null there is generally some error with the
                 // configuration of the application (invalid Client ID, Plus API not enabled, etc).
