@@ -47,4 +47,7 @@
     <!-- Youtube client-->
     <string name="search">Search</string>
     <string name="failed">Failed to initialize Youtube Player</string>
+
+    <string name="views">views</string>
+    <string name="publishedOn">Published On</string>
 </resources>

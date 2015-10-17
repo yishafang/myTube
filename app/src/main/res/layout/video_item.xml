@@ -43,6 +43,45 @@
         android:layout_below="@+id/video_title"
         android:layout_toEndOf="@+id/video_thumbnail" />
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/video_description"
+        android:layout_marginTop="@dimen/padding_small">
 
+        <TextView
+            android:id="@+id/publishedOn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/publishedOn"
+            android:textSize="10sp"
+            android:textStyle="bold"/>
 
+        <TextView
+            android:id="@+id/video_published"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/publishedOn"
+            android:paddingLeft="@dimen/padding_small"
+            android:textSize="10sp"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/views"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:text="@string/views"
+            android:textSize="10sp"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/video_views"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@id/views"
+            android:paddingRight="@dimen/padding_small"
+            android:textSize="10sp"
+            android:textStyle="bold"/>
+    </RelativeLayout>
 </RelativeLayout>

@@ -10,6 +10,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
+import com.google.api.services.youtube.model.Video;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -31,6 +32,8 @@ public class YoutubeConnector {
     // Developer Key
     public static final String KEY = "AIzaSyCglFHAsH2HLqkBIMMWBWlZ8iRCp3Za07o";
 
+    private static final long NUMBER_OF_VIDEOS_RETURNED = 25;
+
     public YoutubeConnector(Context context) {
         youtube = new YouTube.Builder(new NetHttpTransport(), new JacksonFactory(), new HttpRequestInitializer() {
             @Override
@@ -41,7 +44,9 @@ public class YoutubeConnector {
             query = youtube.search().list("id, snippet");
             query.setKey(KEY);
             query.setType("video");
-            query.setFields("items(id/videoId,snippet/title,snippet/description,snippet/thumbnails/default/url)");
+            query.setFields("items(id/videoId,snippet/title,snippet/description,snippet/thumbnails/default/url,snippet/publishedAt)");
+            query.setMaxResults(NUMBER_OF_VIDEOS_RETURNED);
+
         } catch (IOException e) {
             Log.d("YC", "Could not initialize: " + e);
         }
@@ -49,6 +54,7 @@ public class YoutubeConnector {
 
     public List<VideoItem> search(String keywords) {
         query.setQ(keywords);
+
         try {
             SearchListResponse response = query.execute();
             List<SearchResult> results = response.getItems();
@@ -59,7 +65,17 @@ public class YoutubeConnector {
                 item.setTitle(result.getSnippet().getTitle());
                 item.setDescription(result.getSnippet().getDescription());
                 item.setThumbnailURL(result.getSnippet().getThumbnails().getDefault().getUrl());
-                item.setId(result.getId().getVideoId());
+                item.setPublishedAt(result.getSnippet().getPublishedAt());
+
+                String videoId = result.getId().getVideoId();
+                item.setId(videoId);
+
+                // get number of views
+                YouTube.Videos.List videoListQuery = youtube.videos().list("snippet, statistics").setId(videoId);
+                videoListQuery.setKey(KEY);
+                Video video = videoListQuery.execute().getItems().get(0);
+                item.setViewsCount(video.getStatistics().getViewCount());
+
                 items.add(item);
             }
 

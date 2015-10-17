@@ -1,5 +1,9 @@
 package com.example.yishafang.mytube;
 
+import com.google.api.client.util.DateTime;
+
+import java.math.BigInteger;
+
 /**
  * This class is to store the following information about a YouTube video.
  *
@@ -10,6 +14,8 @@ public class VideoItem {
     private String description;
     private String thumbnailURL;
     private String id;
+    private BigInteger viewsCount;
+    private DateTime publishedAt;
 
     public String getTitle() {
         return title;
@@ -41,5 +47,21 @@ public class VideoItem {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public BigInteger getViewsCount() {
+        return viewsCount;
+    }
+
+    public void setViewsCount(BigInteger viewsCount) {
+        this.viewsCount = viewsCount;
+    }
+
+    public DateTime getPublishedAt() {
+        return publishedAt;
+    }
+
+    public void setPublishedAt(DateTime publishedAt) {
+        this.publishedAt = publishedAt;
     }
 }

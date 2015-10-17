@@ -96,6 +96,9 @@ public class SearchFragment extends android.support.v4.app.Fragment{
                 ImageView thumbnail = (ImageView) convertView.findViewById(R.id.video_thumbnail);
                 TextView title = (TextView) convertView.findViewById(R.id.video_title);
                 TextView description = (TextView) convertView.findViewById(R.id.video_description);
+                TextView publishAt = (TextView) convertView.findViewById(R.id.video_published);
+                TextView viewsCount = (TextView) convertView.findViewById(R.id.video_views);
+
                 final ImageButton starIcon = (ImageButton) convertView.findViewById(R.id.favorite);
 
                 final VideoItem searchResult = searchResults.get(position);
@@ -103,6 +106,8 @@ public class SearchFragment extends android.support.v4.app.Fragment{
                 Picasso.with(getActivity().getApplicationContext()).load(searchResult.getThumbnailURL()).into(thumbnail);
                 title.setText(searchResult.getTitle());
                 description.setText(searchResult.getDescription());
+                publishAt.setText(searchResult.getPublishedAt().toString());
+                viewsCount.setText(searchResult.getViewsCount().toString());
 
                 starIcon.setOnClickListener(new View.OnClickListener() {
                     boolean isClicked = false;
@@ -116,7 +121,6 @@ public class SearchFragment extends android.support.v4.app.Fragment{
                         isClicked = !isClicked;
                     }
                 });
-
 
                 return convertView;
             }
