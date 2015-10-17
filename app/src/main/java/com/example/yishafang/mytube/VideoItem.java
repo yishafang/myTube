@@ -16,6 +16,7 @@ public class VideoItem {
     private String id;
     private BigInteger viewsCount;
     private DateTime publishedAt;
+    private boolean isFavorite;
 
     public String getTitle() {
         return title;
@@ -63,5 +64,13 @@ public class VideoItem {
 
     public void setPublishedAt(DateTime publishedAt) {
         this.publishedAt = publishedAt;
+    }
+
+    public void setFavorite(boolean isFavorite) {
+        this.isFavorite = isFavorite;
+    }
+
+    public boolean getFavorite() {
+        return isFavorite;
     }
 }

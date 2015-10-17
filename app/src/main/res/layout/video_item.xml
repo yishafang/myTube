@@ -12,15 +12,13 @@
         android:layout_alignParentTop="true"
         android:layout_marginRight="20dp"/>
 
-    <ImageButton
+    <CheckBox
         android:id="@+id/favorite"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginTop="5dp"
-        android:src="@drawable/star"
-        android:background="@null"/>
+        android:layout_marginTop="5dp"/>
 
     <TextView
         android:id="@+id/video_title"

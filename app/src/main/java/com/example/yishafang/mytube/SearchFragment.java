@@ -10,11 +10,12 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -25,6 +26,8 @@ import java.util.List;
  */
 public class SearchFragment extends android.support.v4.app.Fragment{
     public static final String ARG_PAGE = "ARG_PAGE";
+
+    private String FAVORITE_LIST_TITLE = "SJSU-CMPE-277";
 
     private EditText searchInput;
     private ListView videosFound;
@@ -67,7 +70,7 @@ public class SearchFragment extends android.support.v4.app.Fragment{
             }
         });
 
-        addClickListener();
+        //addClickListener();
         return view;
     }
 
@@ -88,37 +91,50 @@ public class SearchFragment extends android.support.v4.app.Fragment{
     private void updateVideosFound() {
         ArrayAdapter<VideoItem> adapter = new ArrayAdapter<VideoItem>(getActivity().getApplicationContext(), R.layout.video_item, searchResults) {
             @Override
-            public View getView(int position, View convertView, ViewGroup parent) {
+            public View getView(final int position, View convertView, ViewGroup parent) {
                 if (convertView == null) {
                     convertView = getActivity().getLayoutInflater().inflate(R.layout.video_item, parent, false);
                 }
 
-                ImageView thumbnail = (ImageView) convertView.findViewById(R.id.video_thumbnail);
+                final ImageView thumbnail = (ImageView) convertView.findViewById(R.id.video_thumbnail);
+                thumbnail.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(getActivity().getApplicationContext(), PlayerActivity.class);
+                        intent.putExtra("VIDEO_ID", searchResults.get(position).getId());
+                        startActivity(intent);
+                    }
+                });
+
                 TextView title = (TextView) convertView.findViewById(R.id.video_title);
                 TextView description = (TextView) convertView.findViewById(R.id.video_description);
                 TextView publishAt = (TextView) convertView.findViewById(R.id.video_published);
                 TextView viewsCount = (TextView) convertView.findViewById(R.id.video_views);
 
-                final ImageButton starIcon = (ImageButton) convertView.findViewById(R.id.favorite);
+                final CheckBox checkbox = (CheckBox) convertView.findViewById(R.id.favorite);
 
                 final VideoItem searchResult = searchResults.get(position);
 
                 Picasso.with(getActivity().getApplicationContext()).load(searchResult.getThumbnailURL()).into(thumbnail);
                 title.setText(searchResult.getTitle());
                 description.setText(searchResult.getDescription());
-                publishAt.setText(searchResult.getPublishedAt().toString());
+                publishAt.setText(searchResult.getPublishedAt().toString().substring(0, 10));
                 viewsCount.setText(searchResult.getViewsCount().toString());
 
-                starIcon.setOnClickListener(new View.OnClickListener() {
-                    boolean isClicked = false;
+                // set up check box
+                if (searchResult.getFavorite()) {
+                    checkbox.isChecked();
+                }
+
+                checkbox.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (!isClicked) {
-                            starIcon.setImageResource(R.drawable.star_on);
-                        } else {
-                            starIcon.setImageResource(R.drawable.star_off);
+                        if (checkbox.isChecked()) {
+                            searchResult.setFavorite(checkbox.isChecked());
+                            Toast toast = Toast.makeText(getActivity().getApplicationContext(), "Video is added into your playlist.", Toast.LENGTH_LONG);
+                            toast.show();
+                            insertToPlaylist(, searchResult.getId());
                         }
-                        isClicked = !isClicked;
                     }
                 });
 
@@ -127,6 +143,10 @@ public class SearchFragment extends android.support.v4.app.Fragment{
         };
 
         videosFound.setAdapter(adapter);
+    }
+
+    private void insertToPlaylist(String playlistId, String videoId) {
+
     }
 
     private void addClickListener() {
