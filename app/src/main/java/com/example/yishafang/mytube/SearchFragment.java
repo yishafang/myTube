@@ -38,7 +38,6 @@ import static com.example.yishafang.mytube.Constants.ACCESS_TOKEN;
 public class SearchFragment extends android.support.v4.app.Fragment{
     public static final String TAG = SearchFragment.class.getSimpleName();
 
-//    private static final String TAG = "RetrieveAccessToken";
     private String FAVORITE_LIST_TITLE = "SJSU-CMPE-277";
     // TODO shouldn't be hard coded!!
     private String FAVORITE_LIST_ID = "PLhaxd1bMGz7tmUURj5z2n25-gvERQOCLP";
@@ -213,7 +212,7 @@ public class SearchFragment extends android.support.v4.app.Fragment{
                     YouTube.PlaylistItems.Insert InsertRequest =
                             youtube.playlistItems().insert("snippet,contentDetails", playlistItem);
 
-                    PlaylistItem returnedPlaylistItem =
+                    PlaylistItem responses =
                             InsertRequest.execute();
                     Log.d(TAG, "Video is added to playlist ");
 
