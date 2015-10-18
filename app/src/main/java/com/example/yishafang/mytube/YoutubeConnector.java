@@ -40,6 +40,14 @@ public class YoutubeConnector {
             public void initialize(HttpRequest httpRequest) throws IOException {}
         }).setApplicationName(context.getString(R.string.app_name)).build();
 
+//        youtube = new YouTube.Builder(Auth.HTTP_TRANSPORT, Auth.JSON_FACTORY, credential).setApplicationName(
+//                "youtube-cmdline-channelbulletin-sample").build();
+        //credential要加到里面再build，然后设置accesstoken
+
+//        Credential credential = Auth.authorize(scopes, "channelbulletin");
+//        credential.setAccessToken()
+
+
         try {
             query = youtube.search().list("id, snippet");
             query.setKey(KEY);

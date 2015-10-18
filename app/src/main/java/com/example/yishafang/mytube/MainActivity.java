@@ -1,10 +1,13 @@
 package com.example.yishafang.mytube;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -17,6 +20,9 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.auth.GoogleAuthException;
+import com.google.android.gms.auth.GoogleAuthUtil;
+import com.google.android.gms.auth.UserRecoverableAuthException;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.Scopes;
@@ -25,6 +31,11 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.plus.Plus;
 import com.google.android.gms.plus.model.people.Person;
+import com.google.api.services.youtube.YouTubeScopes;
+
+import java.io.IOException;
+
+import static com.example.yishafang.mytube.Constants.ACCESS_TOKEN;
 
 
 public class MainActivity extends AppCompatActivity implements
@@ -57,7 +68,8 @@ public class MainActivity extends AppCompatActivity implements
     /* View to display current status (signed-in, signed-out, disconnected, etc) */
     private TextView mStatus;
 
-
+    private static final String ACCESS_TOKEN_TAG = "RetrieveAccessToken";
+    private static final int REQ_SIGN_IN_REQUIRED = 55664;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,6 +105,8 @@ public class MainActivity extends AppCompatActivity implements
                 .addApi(Plus.API)
                 .addScope(new Scope(Scopes.PROFILE))    //specify your app's initial scopes
                 .addScope(new Scope(Scopes.EMAIL))
+                .addScope(new Scope(Scopes.PLUS_LOGIN))
+                .addScope(new Scope(YouTubeScopes.YOUTUBE))
                 .build();
 
     }
@@ -238,10 +252,12 @@ public class MainActivity extends AppCompatActivity implements
                 if (checkAccountsPermission()) {
                     String currentAccount = Plus.AccountApi.getAccountName(mGoogleApiClient);
                     ((TextView) findViewById(R.id.email)).setText(currentAccount);
+
+                    new RetrieveTokenTask().execute(currentAccount);
                 }
 
-                Intent intent = new Intent(this, SearchActivity.class);
-                startActivity(intent);
+//                Intent intent = new Intent(this, SearchActivity.class);
+//                startActivity(intent);
             } else {
                 // If getCurrentPerson returns null there is generally some error with the
                 // configuration of the application (invalid Client ID, Plus API not enabled, etc).
@@ -355,6 +371,43 @@ public class MainActivity extends AppCompatActivity implements
         }
 
         showSignedOutUI();
+    }
+
+
+    private class RetrieveTokenTask extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... params) {
+            String accountName = params[0];
+            String scopes = "oauth2:profile email";
+            String token = null;
+            try {
+                token = GoogleAuthUtil.getToken(getApplicationContext(), accountName, scopes);
+            } catch (IOException e) {
+                Log.e(ACCESS_TOKEN_TAG, e.getMessage());
+            } catch (UserRecoverableAuthException e) {
+                startActivityForResult(e.getIntent(), REQ_SIGN_IN_REQUIRED);
+            } catch (GoogleAuthException e) {
+                Log.e(ACCESS_TOKEN_TAG, e.getMessage());
+            }
+            return token;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            Log.i("Token Value::: ", s);
+
+            SharedPreferences sharedPreferences = MainActivity.this.getPreferences(Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString(ACCESS_TOKEN, s);
+            editor.commit();
+
+            Intent intent = new Intent(MainActivity.this, SearchActivity.class);
+            intent.putExtra(ACCESS_TOKEN, s);
+            startActivity(intent);
+
+        }
     }
 
 }

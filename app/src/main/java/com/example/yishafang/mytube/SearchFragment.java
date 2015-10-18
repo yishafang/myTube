@@ -3,12 +3,12 @@ package com.example.yishafang.mytube;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -17,17 +17,33 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.services.youtube.YouTube;
+import com.google.api.services.youtube.model.PlaylistItem;
+import com.google.api.services.youtube.model.PlaylistItemSnippet;
+import com.google.api.services.youtube.model.ResourceId;
 import com.squareup.picasso.Picasso;
 
+import java.io.IOException;
 import java.util.List;
+
+import static com.example.yishafang.mytube.Constants.ACCESS_TOKEN;
+
 
 /**
  * @author yishafang on 10/15/15.
  */
 public class SearchFragment extends android.support.v4.app.Fragment{
-    public static final String ARG_PAGE = "ARG_PAGE";
+    public static final String TAG = SearchFragment.class.getSimpleName();
 
+//    private static final String TAG = "RetrieveAccessToken";
     private String FAVORITE_LIST_TITLE = "SJSU-CMPE-277";
+    // TODO shouldn't be hard coded!!
+    private String FAVORITE_LIST_ID = "PLhaxd1bMGz7tmUURj5z2n25-gvERQOCLP";
+
+    private static String accessToken;
 
     private EditText searchInput;
     private ListView videosFound;
@@ -38,7 +54,7 @@ public class SearchFragment extends android.support.v4.app.Fragment{
 
     public static SearchFragment newInstance(int page) {
         Bundle args = new Bundle();
-        args.putInt(ARG_PAGE, page);
+        args.putInt(TAG, page);
         SearchFragment fragment = new SearchFragment();
         fragment.setArguments(args);
         return fragment;
@@ -47,6 +63,12 @@ public class SearchFragment extends android.support.v4.app.Fragment{
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+//        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+//        accessToken = sharedPref.getString(ACCESS_TOKEN, null);
+        Intent intent = getActivity().getIntent();
+        accessToken = intent.getStringExtra(ACCESS_TOKEN);
+
+        Log.d(TAG, accessToken);
     }
 
     @Override
@@ -70,7 +92,6 @@ public class SearchFragment extends android.support.v4.app.Fragment{
             }
         });
 
-        //addClickListener();
         return view;
     }
 
@@ -133,10 +154,12 @@ public class SearchFragment extends android.support.v4.app.Fragment{
                             searchResult.setFavorite(checkbox.isChecked());
                             Toast toast = Toast.makeText(getActivity().getApplicationContext(), "Video is added into your playlist.", Toast.LENGTH_LONG);
                             toast.show();
-                            insertToPlaylist(, searchResult.getId());
+                            insertToPlaylist(FAVORITE_LIST_ID, searchResult.getId());
+                            checkbox.setVisibility(View.INVISIBLE);
                         }
                     }
                 });
+
 
                 return convertView;
             }
@@ -145,18 +168,60 @@ public class SearchFragment extends android.support.v4.app.Fragment{
         videosFound.setAdapter(adapter);
     }
 
-    private void insertToPlaylist(String playlistId, String videoId) {
+    private void insertToPlaylist(final String playlistId, final String videoId) {
+        new Thread() {
+            public void run() {
+                GoogleCredential credential = new GoogleCredential.Builder().setTransport(new NetHttpTransport())
+                        .setJsonFactory(new JacksonFactory()).build();
+                credential.setAccessToken(accessToken);
 
-    }
+                // This OAuth 2.0 access scope allows for full read/write access to the
+                // authenticated user's account and requires requests to use an SSL connection.
+//                ArrayList<String> scopes = new ArrayList<String>();
+//                scopes.add("https://www.googleapis.com/auth/youtube.force-ssl");
+//
+//                GoogleAccountCredential credential1 = GoogleAccountCredential.usingOAuth2(
+//                        getActivity().getApplicationContext(), scopes);
 
-    private void addClickListener() {
-        videosFound.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(getActivity().getApplicationContext(), PlayerActivity.class);
-                intent.putExtra("VIDEO_ID", searchResults.get(position).getId());
-                startActivity(intent);
+                // This object is used to make YouTube Data API requests.
+                YouTube youtube;
+
+                youtube = new YouTube.Builder(new NetHttpTransport(), new JacksonFactory(), credential)
+                        .setApplicationName("MyTube")
+                        .build();
+
+                //Define a resourceId that identifies the video being added to the playlist
+                ResourceId resourceId = new ResourceId();
+                resourceId.setKind("youtube#video");
+                resourceId.setVideoId(videoId);
+
+                // Set fields included in the playlistItem resource's "snippet" part.
+                PlaylistItemSnippet playlistItemSnippet = new PlaylistItemSnippet();
+                playlistItemSnippet.setTitle(FAVORITE_LIST_TITLE);
+                playlistItemSnippet.setPlaylistId(playlistId);
+                playlistItemSnippet.setResourceId(resourceId);
+
+                // Create the playlistItem resource and set its snippet to object created above.
+                PlaylistItem playlistItem = new PlaylistItem();
+                playlistItem.setSnippet(playlistItemSnippet);
+
+                // Call the API to add the video to the specified playlist.
+                try {
+
+                    Log.d(TAG, "Video need to insert to playlist ");
+
+                    YouTube.PlaylistItems.Insert InsertRequest =
+                            youtube.playlistItems().insert("snippet,contentDetails", playlistItem);
+
+                    PlaylistItem returnedPlaylistItem =
+                            InsertRequest.execute();
+                    Log.d(TAG, "Video is added to playlist ");
+
+                } catch (IOException e) {
+                    Log.d(TAG, "Could not add video to playlist: " + e);
+                }
+
             }
-        });
+        }.start();
     }
 }
