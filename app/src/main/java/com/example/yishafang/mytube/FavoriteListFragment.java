@@ -108,7 +108,7 @@ public class FavoriteListFragment extends Fragment {
 
                     String nextPageToken = "";
 
-//                    do {
+                    do {
                         listRequest.setPageToken(nextPageToken);
 
                         PlaylistItemListResponse response = listRequest.execute();
@@ -138,8 +138,9 @@ public class FavoriteListFragment extends Fragment {
                             videoItems.add(videoItem);
 
                         }
+                        nextPageToken = response.getNextPageToken();
 
-                    //} while (nextPageToken != null);
+                    } while (nextPageToken != null);
 
 
                 } catch (IOException e) {
